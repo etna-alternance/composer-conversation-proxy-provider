@@ -30,6 +30,7 @@ class DumbMethodsProxy implements ControllerProviderInterface
 
         //Dumb proxy for views
         $controllers->get("/conversations/{conversation}/messages/{message}/views", [$this, "loadViews"]);
+        $controllers->get("/conversations/{conversation}/has_new_messages", [$this, "hasNewMessages"]);
         $controllers->match("/conversations/{conversation}/messages/{message}/view", [$this, "writeMessageView"])
             ->method("POST|PUT");
         $controllers->match("/conversations/{conversation}/views", [$this, "writeConversationViews"])
@@ -75,6 +76,11 @@ class DumbMethodsProxy implements ControllerProviderInterface
     public function loadViews(Application $app, Request $req)
     {
         return $this->doProxyWithoutDatas($app, $req);
+    }
+
+    public function hasNewMessages(Application $app, Request $req)
+    {
+        return $this->doProxyWithDatas($app, $req);
     }
 
     public function writeMessageView(Application $app, Request $req)
