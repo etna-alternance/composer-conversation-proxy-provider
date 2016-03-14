@@ -5,7 +5,7 @@ namespace ETNA\Silex\Provider\ConversationProxy;
 use Guzzle\Http\Message\Request as GuzzleRequest;
 
 use Silex\Application;
-use Silex\ControllerProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 
 use Symfony\Component\HttpFoundation\Request;
 
