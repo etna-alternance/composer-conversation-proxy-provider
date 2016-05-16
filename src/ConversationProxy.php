@@ -2,7 +2,7 @@
 
 namespace ETNA\Silex\Provider\ConversationProxy;
 
-use Guzzle\Http\Client;
+use GuzzleHttp\Client;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
@@ -34,8 +34,13 @@ class ConversationProxy implements ServiceProviderInterface
             if (false === $conversation_api_url) {
                 throw new \Exception("ConversationProxyProvider needs env var CONVERSATION_API_URL");
             }
+            if (false === getenv("TRUSTED_DOMAIN")) {
+                throw new \Exception("ConversationProxyProvider needs env var TRUSTED_DOMAIN");
+            }
 
-            return new Client($conversation_api_url, []);
+            return new Client([
+                "base_uri" => $conversation_api_url
+            ]);
         };
 
         $app["conversations"] = function ($app) {
