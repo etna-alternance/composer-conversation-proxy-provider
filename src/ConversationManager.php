@@ -102,7 +102,7 @@ class ConversationManager
         $method = strtoupper($method);
 
         if (false === in_array($method, ["GET", "POST", "PUT", "DELETE", "OPTIONS"])) {
-            throw new Exception("ConversationProxy can not fire request of method : {$method}", 500);
+            return $this->app->abort(405, "ConversationProxy can not fire request of method : {$method}");
         }
 
         $domain = getenv("TRUSTED_DOMAIN");

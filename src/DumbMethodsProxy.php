@@ -106,8 +106,9 @@ class DumbMethodsProxy implements ControllerProviderInterface
     {
         $method = $req->getMethod();
         if (false === in_array($method, ["GET", "POST", "PUT", "DELETE", "OPTIONS"])) {
-            throw new Exception("ConversationProxy can not fire request of method : {$method}", 500);
+            return $app->abort(405, "ConversationProxy can not fire request of method : {$method}");
         }
+
         $path_info = $req->getPathInfo();
         $path_info = str_replace($remove_prefix, "", $path_info);
         $domain    = getenv("TRUSTED_DOMAIN");
