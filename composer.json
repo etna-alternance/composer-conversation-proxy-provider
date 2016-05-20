@@ -13,7 +13,7 @@
     "require": {
         "php": ">=5.5.0",
         "silex/silex": "~2.0@dev",
-        "guzzle/guzzle": "3.9.x"
+        "guzzlehttp/guzzle": "6.x"
     },
     "autoload": {
         "psr-4": {

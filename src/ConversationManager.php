@@ -4,6 +4,7 @@ namespace ETNA\Silex\Provider\ConversationProxy;
 
 use Guzzle\Http\Message\Request as GuzzleRequest;
 
+use GuzzleHttp\Cookie\CookieJar;
 use Silex\Application;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -22,10 +23,8 @@ class ConversationManager
 
     public function findByQueryString($query, $from = 0, $size = 99999)
     {
-        $query   = urlencode($query);
-        $request = $this->app["conversation_proxy"]
-            ->get("/search?q={$query}&from={$from}&size={$size}");
-        $response = $this->fireRequest($request, $this->app["cookies.authenticator"]);
+        $query    = urlencode($query);
+        $response = $this->fireRequest("GET", "/search?q={$query}&from={$from}&size={$size}");
 
         $response["hits"] = array_map(
             function ($hit) {
@@ -41,10 +40,8 @@ class ConversationManager
 
     public function findUnreadByQueryString($query, $from = 0, $size = 99999)
     {
-        $query   = urlencode($query);
-        $request = $this->app["conversation_proxy"]
-            ->get("/fetch_unread?q={$query}&from={$from}&size={$size}");
-        $unread = $this->fireRequest($request, $this->app["cookies.authenticator"]);
+        $query  = urlencode($query);
+        $unread = $this->fireRequest("GET", "/fetch_unread?q={$query}&from={$from}&size={$size}");
 
         return $unread;
     }
@@ -60,10 +57,8 @@ class ConversationManager
 
     public function findStatsByQueryString($query, $from = 0, $size = 99999)
     {
-        $query   = urlencode($query);
-        $request = $this->app["conversation_proxy"]
-            ->get("/stats?q={$query}&from={$from}&size={$size}");
-        $stats   = $this->fireRequest($request, $this->app["cookies.authenticator"]);
+        $query    = urlencode($query);
+        $response = $this->fireRequest("GET", "/stats?q={$query}&from={$from}&size={$size}");
 
         return $stats;
     }
@@ -80,8 +75,7 @@ class ConversationManager
             }
 
             $body["metas"] = json_encode($body["metas"]);
-            $request       = $this->app["conversation_proxy"]->post("/conversations", [], $body);
-            $response      = $this->fireRequest($request, $this->app["cookies.authenticator"]);
+            $response      = $this->fireRequest("POST", "/conversations", $body);
         } else {
             foreach ($actions as $action) {
                 $route  = $action["route"];
@@ -89,8 +83,7 @@ class ConversationManager
                 unset($action["route"]);
                 unset($action["method"]);
 
-                $request  = $this->app["conversation_proxy"]->{$method}($route, [], $action);
-                $response = $this->fireRequest($request, $this->app["cookies.authenticator"]);
+                $response = $this->fireRequest($method, $route, $action);
             }
         }
         return $response;
@@ -104,15 +97,25 @@ class ConversationManager
         return $conversations;
     }
 
-    private function fireRequest(GuzzleRequest $request, $cookie)
+    private function fireRequest($method, $uri, $body = [])
     {
+        $method = strtoupper($method);
+
+        if (false === in_array($method, ["GET", "POST", "PUT", "DELETE", "OPTIONS"])) {
+            return $this->app->abort(405, "ConversationProxy can not fire request of method : {$method}");
+        }
+
+        $domain = getenv("TRUSTED_DOMAIN");
+        $jar    = CookieJar::fromArray(["authenticator" => $this->app["cookies.authenticator"]], $domain);
+
         try {
-            $response = $request
-                ->addCookie('authenticator', $cookie)
-                ->send();
-            return $response->json();
-        } catch (\Guzzle\Http\Exception\BadResponseException $client_error) {
-            return $this->app->abort(
+            $response = $this->app["conversation_proxy"]->request($method, $uri, [
+                "cookies" => $jar,
+                "json"    => $body
+            ]);
+            return json_decode($response->getBody(), true);
+        } catch (\GuzzleHttp\Exception\RequestException $client_error) {
+            return $app->abort(
                 $client_error->getResponse()->getStatusCode(),
                 $client_error->getResponse()->getReasonPhrase()
             );
