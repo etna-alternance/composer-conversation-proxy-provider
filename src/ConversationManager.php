@@ -38,10 +38,11 @@ class ConversationManager
         return $response;
     }
 
-    public function findUnreadByQueryString($query, $from = 0, $size = 99999)
+    public function findUnreadByQueryString($query, $aggs, $from = 0, $size = 0)
     {
         $query  = urlencode($query);
-        $unread = $this->fireRequest("GET", "/fetch_unread?q={$query}&from={$from}&size={$size}");
+        $aggs   = urlencode($aggs);
+        $unread = $this->fireRequest("GET", "/fetch_unread?q={$query}&aggs={$aggs}&from={$from}&size={$size}");
 
         return $unread;
     }
