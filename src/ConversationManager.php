@@ -38,11 +38,10 @@ class ConversationManager
         return $response;
     }
 
-    public function findUnreadByQueryString($query, $aggs, $from = 0, $size = 0)
+    public function findUnreadByQueryString($query, $from = 0, $size = 0)
     {
         $query  = urlencode($query);
-        $aggs   = urlencode($aggs);
-        $unread = $this->fireRequest("GET", "/fetch_unread?q={$query}&aggs={$aggs}&from={$from}&size={$size}");
+        $unread = $this->fireRequest("GET", "/fetch_unread?q={$query}&from={$from}&size={$size}");
 
         return $unread;
     }
@@ -62,6 +61,20 @@ class ConversationManager
         $response = $this->fireRequest("GET", "/stats?q={$query}&from={$from}&size={$size}");
 
         return $stats;
+    }
+
+    public function findAggsByQueryString($query, $aggs, $from = 0, $size = 0)
+    {
+        $body    = [
+                "query" => $query,
+                "aggs"  => $aggs,
+                "from"  => $from,
+                "size"  => $size
+        ];
+        $request = $this->app["conversation_proxy"]->post("/aggs", ["body" => $body]);
+        $aggs    = $this->fireRequest($request, $this->app["cookies.authenticator"]);
+
+        return $aggs;
     }
 
     public function save(Conversation $conversation)
