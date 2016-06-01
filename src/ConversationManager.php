@@ -68,6 +68,15 @@ class ConversationManager
         return $stats;
     }
 
+    public function findAggsByQueryString($query, $aggs, $from = 0, $size = 0)
+    {
+        $query   = urlencode($query);
+        $request = $this->app["conversation_proxy"]->post("/aggs?q={$query}&from={$from}&size={$size}", [], $aggs);
+        $aggs    = $this->fireRequest($request, $this->app["cookies.authenticator"]);
+
+        return $aggs;
+    }
+
     public function save(Conversation $conversation)
     {
         $actions  = $conversation->getSaveActions();
