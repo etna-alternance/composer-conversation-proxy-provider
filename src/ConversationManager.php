@@ -123,7 +123,7 @@ class ConversationManager
             ]);
             return json_decode($response->getBody(), true);
         } catch (\GuzzleHttp\Exception\RequestException $client_error) {
-            return $app->abort(
+            return $this->app->abort(
                 $client_error->getResponse()->getStatusCode(),
                 $client_error->getResponse()->getReasonPhrase()
             );
