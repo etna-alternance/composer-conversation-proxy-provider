@@ -63,6 +63,14 @@ class ConversationManager
         return $stats;
     }
 
+    public function findAggsByQueryString($query, $aggs, $from = 0, $size = 0)
+    {
+        $query = urlencode($query);
+        $aggs  = $this->fireRequest("POST", "/aggs?q={$query}&from={$from}&size={$size}", $aggs);
+
+        return $aggs;
+    }
+
     public function save(Conversation $conversation)
     {
         $actions  = $conversation->getSaveActions();
@@ -115,7 +123,7 @@ class ConversationManager
             ]);
             return json_decode($response->getBody(), true);
         } catch (\GuzzleHttp\Exception\RequestException $client_error) {
-            return $app->abort(
+            return $this->app->abort(
                 $client_error->getResponse()->getStatusCode(),
                 $client_error->getResponse()->getReasonPhrase()
             );
