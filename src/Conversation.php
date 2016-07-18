@@ -28,6 +28,9 @@ class Conversation implements \JsonSerializable
     /* @var array $messages */
     private $messages;
 
+    /* @var array $last_message */
+    private $last_message;
+
     /* @var array $save_actions */
     private $save_actions;
 
@@ -256,6 +259,28 @@ class Conversation implements \JsonSerializable
     }
 
     /**
+     * Set conversation's last message
+     *
+     * @return array
+     */
+    public function setLastMessage()
+    {
+        $this->last_message = end($this->messages);
+
+        return $this;
+    }
+
+    /**
+     * Get conversation's last message
+     *
+     * @return array
+     */
+    public function getLastMessage()
+    {
+        return $this->last_message;
+    }
+
+    /**
      * Fills itself from array
      *
      * @param  array  $conversation
@@ -282,14 +307,15 @@ class Conversation implements \JsonSerializable
     public function toArray()
     {
         return [
-            "id"         => $this->getId(),
-            "title"      => $this->getTitle(),
-            "metas"      => $this->getMetas(),
-            "acls"       => $this->getAcls(),
-            "messages"   => $this->getMessages(),
-            "created_at" => $this->getCreatedAt("c"),
-            "updated_at" => $this->getUpdatedAt("c"),
-            "deleted_at" => $this->getDeletedAt("c"),
+            "id"           => $this->getId(),
+            "title"        => $this->getTitle(),
+            "metas"        => $this->getMetas(),
+            "acls"         => $this->getAcls(),
+            "messages"     => $this->getMessages(),
+            "last_message" => $this->getLastMessage(),
+            "created_at"   => $this->getCreatedAt("c"),
+            "updated_at"   => $this->getUpdatedAt("c"),
+            "deleted_at"   => $this->getDeletedAt("c"),
         ];
     }
 
