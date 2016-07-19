@@ -245,6 +245,8 @@ class Conversation implements \JsonSerializable
             )
         );
 
+        $this->last_message = end($this->messages[]);
+
         return $this;
     }
 
@@ -256,18 +258,6 @@ class Conversation implements \JsonSerializable
     public function getMessages()
     {
         return $this->messages;
-    }
-
-    /**
-     * Set conversation's last message
-     *
-     * @return array
-     */
-    public function setLastMessage()
-    {
-        $this->last_message = end($this->messages);
-
-        return $this;
     }
 
     /**
