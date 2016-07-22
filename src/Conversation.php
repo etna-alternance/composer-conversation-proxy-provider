@@ -245,7 +245,7 @@ class Conversation implements \JsonSerializable
             )
         );
 
-        $this->last_message = end($this->messages[]);
+        $this->last_message = end($this->messages);
 
         return $this;
     }
