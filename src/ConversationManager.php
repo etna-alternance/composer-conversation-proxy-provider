@@ -57,8 +57,8 @@ class ConversationManager
 
     public function findStatsByQueryString($query, $from = 0, $size = 99999)
     {
-        $query    = urlencode($query);
-        $response = $this->fireRequest("GET", "/stats?q={$query}&from={$from}&size={$size}");
+        $query = urlencode($query);
+        $stats = $this->fireRequest("GET", "/stats?q={$query}&from={$from}&size={$size}");
 
         return $stats;
     }
