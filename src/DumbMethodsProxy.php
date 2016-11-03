@@ -124,7 +124,15 @@ class DumbMethodsProxy implements ControllerProviderInterface
                 ]
             );
 
-            return $app->json(json_decode($response->getBody()), 200, $response->getHeaders());
+            $headers = array_filter(
+                $response->getHeaders(),
+                function ($value, $name) {
+                    return 0 === preg_match("/^.*-encoding|connection(?:-.*)*?/i", $name);
+                },
+                ARRAY_FILTER_USE_BOTH
+            );
+
+            return $app->json(json_decode($response->getBody()), 200, $headers);
         } catch (\GuzzleHttp\Exception\RequestException $client_error) {
             return $app->abort(
                 $client_error->getResponse()->getStatusCode(),
