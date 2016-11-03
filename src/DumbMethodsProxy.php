@@ -145,7 +145,15 @@ class DumbMethodsProxy implements ControllerProviderInterface
             $response = $request
                 ->addCookie("authenticator", $cookie)
                 ->send();
-            $headers  = $response->getHeaders()->toArray();
+
+            $headers = array_filter(
+                $response->getHeaders()->toArray(),
+                function ($value, $name) {
+                    return 0 === preg_match("/^.*-encoding|connection(?:-.*)*?/i", $name);
+                },
+                ARRAY_FILTER_USE_BOTH
+            );
+
             return $app->json(json_decode($response->getBody()), 200, $headers);
         } catch (\Guzzle\Http\Exception\BadResponseException $client_error) {
             return $app->abort(
