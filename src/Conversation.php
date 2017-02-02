@@ -223,7 +223,7 @@ class Conversation implements \JsonSerializable
      *
      * @return self
      */
-    public function addMessage($message, $type = "message")
+    public function addMessage($message, $type = "message", $metas = null)
     {
         if (false === is_string($message)) {
             throw new \Exception("Message given to addMessage method needs to be of type string");
@@ -231,7 +231,8 @@ class Conversation implements \JsonSerializable
 
         $new_message = [
             "content" => $message,
-            "type"    => $type
+            "type"    => $type,
+            "metas"   => $metas
         ];
 
         $this->messages[] = $new_message;
