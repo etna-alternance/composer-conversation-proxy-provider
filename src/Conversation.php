@@ -220,6 +220,7 @@ class Conversation implements \JsonSerializable
      * Add message to conversation
      *
      * @param  string $message
+     * @param  string $type
      * @param  array  $metas
      *
      * @return self
