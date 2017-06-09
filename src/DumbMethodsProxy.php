@@ -67,7 +67,7 @@ class DumbMethodsProxy implements ControllerProviderInterface
 
     public function updateMessageMetas(Application $app, Request $req)
     {
-        return $this->fireRequest($app, $req);
+        return $this->doProxyWithDatas($app, $req);
     }
 
     public function writeMessage(Application $app, Request $req)
