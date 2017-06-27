@@ -20,11 +20,11 @@ class ConversationManager
         $this->app = $app;
     }
 
-    public function findByQueryString($query, $from = 0, $size = 99999)
+    public function findByQueryString($query, $from = 0, $size = 99999, $sort = "")
     {
         $query   = urlencode($query);
         $request = $this->app["conversation_proxy"]
-            ->get("/search?q={$query}&from={$from}&size={$size}");
+            ->get("/search?q={$query}&from={$from}&size={$size}&sort={$sort}");
         $response = $this->fireRequest($request, $this->app["cookies.authenticator"]);
 
         $response["hits"] = array_map(
