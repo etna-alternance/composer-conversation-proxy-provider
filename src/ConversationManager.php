@@ -21,10 +21,10 @@ class ConversationManager
         $this->app = $app;
     }
 
-    public function findByQueryString($query, $from = 0, $size = 99999)
+    public function findByQueryString($query, $from = 0, $size = 99999, $sort = "")
     {
         $query    = urlencode($query);
-        $response = $this->fireRequest("GET", "/search?q={$query}&from={$from}&size={$size}");
+        $response = $this->fireRequest("GET", "/search?q={$query}&from={$from}&size={$size}&sort={$sort}");
 
         $response["hits"] = array_map(
             function ($hit) {
