@@ -264,6 +264,18 @@ class Conversation implements \JsonSerializable
     }
 
     /**
+     * Set conversation messages
+     *
+     * @param  array  $messages
+     *
+     * @return array
+     */
+    public function setMessages($messages)
+    {
+        $this->messages = $messages;
+    }
+
+    /**
      * Get conversation's last message
      *
      * @return array

@@ -47,6 +47,10 @@ class ConversationProxy implements ServiceProviderInterface
             return new ConversationManager($app);
         };
 
+        $app["messages"] = function ($app) {
+            return new MessageManager($app);
+        };
+
         $app->mount("/", $this->controller_instance);
     }
 }
