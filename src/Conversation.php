@@ -28,6 +28,9 @@ class Conversation implements \JsonSerializable
     /* @var array $messages */
     private $messages;
 
+    /* @var array $message */
+    private $message;
+
     /* @var array $last_message */
     private $last_message;
 
@@ -38,6 +41,7 @@ class Conversation implements \JsonSerializable
     {
         $this->acls           = [];
         $this->messages       = [];
+        $this->message        = [];
         $this->save_actions[] = [
             "method" => "post",
             "route"  => "/conversations",
@@ -261,6 +265,16 @@ class Conversation implements \JsonSerializable
     public function getMessages()
     {
         return $this->messages;
+    }
+
+    /**
+     * Get conversation message
+     *
+     * @return array
+     */
+    public function getMessage()
+    {
+        return $this->message;
     }
 
     /**
