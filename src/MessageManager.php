@@ -28,6 +28,15 @@ class MessageManager
         return $response;
     }
 
+    public function searchMessages($query, $from, $size, $sort = "")
+    {
+        $query = urlencode($query);
+
+        $response = $this->fireRequest("GET", "/search_messages?q={$query}&from={$from}&size={$size}");
+
+        return $response;
+    }
+
     private function fireRequest($method, $uri, $body = [])
     {
         $method = strtoupper($method);
