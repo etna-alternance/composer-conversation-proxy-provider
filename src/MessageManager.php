@@ -28,7 +28,7 @@ class MessageManager
         return $response;
     }
 
-    public function searchMessages($query, $from, $size, $sort = "")
+    public function searchMessages($query, $from = 0, $size = 10, $sort = "")
     {
         $query = urlencode($query);
 
