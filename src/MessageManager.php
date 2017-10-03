@@ -32,7 +32,7 @@ class MessageManager
     {
         $query = urlencode($query);
 
-        $response = $this->fireRequest("GET", "/search_messages?q={$query}&from={$from}&size={$size}");
+        $response = $this->fireRequest("GET", "/search_messages?q={$query}&from={$from}&size={$size}&sort={$sort}");
 
         return $response;
     }
