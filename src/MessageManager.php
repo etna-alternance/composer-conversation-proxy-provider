@@ -37,9 +37,9 @@ class MessageManager
         return $response;
     }
 
-    public function updateMessageMetas($metas)
+    public function updateMessageMetas($message_id, $metas)
     {
-        $response = $this->fireRequest("POST", "/update_metas", $metas);
+        $response = $this->fireRequest("PUT", "/{$message_id}/update_metas", $metas);
 
         return $response;
     }
