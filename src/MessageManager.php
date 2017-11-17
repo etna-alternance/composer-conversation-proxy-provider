@@ -37,6 +37,13 @@ class MessageManager
         return $response;
     }
 
+    public function updateMessageMetas($conversation_id, $message_id, $metas)
+    {
+        $response = $this->fireRequest("PUT", "/conversations/{$conversation_id}/messages/{$message_id}/update_metas", $metas);
+
+        return $response;
+    }
+
     private function fireRequest($method, $uri, $body = [])
     {
         $method = strtoupper($method);
