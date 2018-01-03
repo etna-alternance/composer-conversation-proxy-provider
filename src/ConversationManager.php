@@ -23,8 +23,9 @@ class ConversationManager
 
     public function findByQueryString($query, $from = 0, $size = 99999, $sort = "", $msg_query = "")
     {
-        $query    = urlencode($query);
-        $response = $this->fireRequest("GET", "/search?q={$query}&messages_query={$msg_query}&from={$from}&size={$size}&sort={$sort}");
+        $query     = urlencode($query);
+        $msg_query = urlencode($msg_query);
+        $response  = $this->fireRequest("GET", "/search?q={$query}&messages_query={$msg_query}&from={$from}&size={$size}&sort={$sort}");
 
         $response["hits"] = array_map(
             function ($hit) {
