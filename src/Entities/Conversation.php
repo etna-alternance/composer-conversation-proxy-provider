@@ -1,43 +1,47 @@
 <?php
-
-namespace ETNA\Silex\Provider\ConversationProxy;
+namespace ETNA\ConversationProxy\Entities;
 
 class Conversation implements \JsonSerializable
 {
     /* @var integer $id */
+
     private $id;
-
     /* @var string $title */
+
     private $title;
-
     /* @var string $metas */
+
     private $metas;
-
     /* @var \DateTime $created_at */
+
     private $created_at;
-
     /* @var \DateTime $updated_at */
+
     private $updated_at;
-
     /* @var \DateTime $deleted_at */
+
     private $deleted_at;
-
     /* @var array $acls */
+
     private $acls;
-
     /* @var array $messages */
+
     private $messages;
+    /* @var array $message */
 
+    private $message;
     /* @var array $last_message */
-    private $last_message;
 
+    private $last_message;
     /* @var array $save_actions */
+
     private $save_actions;
 
     public function __construct()
     {
         $this->acls           = [];
         $this->messages       = [];
+        $this->message        = [];
         $this->save_actions[] = [
             "method" => "post",
             "route"  => "/conversations",
@@ -74,7 +78,6 @@ class Conversation implements \JsonSerializable
     public function setTitle($title)
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -103,7 +106,6 @@ class Conversation implements \JsonSerializable
             "route"  => "/conversations/{$this->id}",
             "metas"  => $metas,
         ]);
-
         return $this;
     }
 
@@ -158,7 +160,6 @@ class Conversation implements \JsonSerializable
         foreach ($acls as $acl) {
             $this->addAcl($acl);
         }
-
         return $this;
     }
 
@@ -179,7 +180,6 @@ class Conversation implements \JsonSerializable
                 "acl"    => $acl,
             ]);
         }
-
         return $this;
     }
 
@@ -202,7 +202,6 @@ class Conversation implements \JsonSerializable
                 "acl"    => $this->acls[$index],
             ]);
         }
-
         return $this;
     }
 
@@ -230,13 +229,11 @@ class Conversation implements \JsonSerializable
         if (false === is_string($message)) {
             throw new \Exception("Message given to addMessage method needs to be of type string");
         }
-
         $new_message = [
             "content" => $message,
             "type"    => $type,
             "metas"   => $metas
         ];
-
         $this->messages[] = $new_message;
         $this->addSaveAction(
             array_merge(
@@ -247,9 +244,7 @@ class Conversation implements \JsonSerializable
                 $new_message
             )
         );
-
         $this->last_message = end($this->messages);
-
         return $this;
     }
 
@@ -261,6 +256,28 @@ class Conversation implements \JsonSerializable
     public function getMessages()
     {
         return $this->messages;
+    }
+
+    /**
+     * Get conversation message
+     *
+     * @return array
+     */
+    public function getMessage()
+    {
+        return $this->message;
+    }
+
+    /**
+     * Set conversation messages
+     *
+     * @param  array  $messages
+     *
+     * @return array
+     */
+    public function setMessages($messages)
+    {
+        $this->messages = $messages;
     }
 
     /**
@@ -288,7 +305,6 @@ class Conversation implements \JsonSerializable
                 $this->{$field} = $value;
             }
         }
-
         return $this;
     }
 
@@ -320,11 +336,9 @@ class Conversation implements \JsonSerializable
     private function addSaveAction(array $save_action)
     {
         $creation_scheduled = in_array(["method" => "post", "route" => "/conversations"], $this->save_actions);
-
         if (true === $creation_scheduled) {
             return;
         }
-
         switch (true) {
             case isset($save_action["content"]):
             case isset($save_action["acl"]):
@@ -354,9 +368,9 @@ class Conversation implements \JsonSerializable
     {
         return $this->save_actions;
     }
-
     public function jsonSerialize()
     {
         return $this->toArray();
     }
 }
+

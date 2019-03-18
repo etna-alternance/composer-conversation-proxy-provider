@@ -1,0 +1,14 @@
+services:
+    conversation.proxy_manager:
+        autowire: true
+        class: 'ETNA\ConversationProxy\Services\ConversationManagerService'
+    conversation.proxy_utils:
+        autowire: true
+        class: 'ETNA\ConversationProxy\Utils\ConversationUtils'
+    message.proxy_manager:
+        autowire: true
+        class: 'ETNA\ConversationProxy\Services\MessageManagerService'
+
+    ETNA\ConversationProxy\Services\ConversationManagerService: '@conversation.proxy_manager'
+    ETNA\ConversationProxy\Utils\ConversationUtils:             '@conversation.proxy_utils'
+    ETNA\ConversationProxy\Services\MessageManagerService:      '@message.proxy_manager'
