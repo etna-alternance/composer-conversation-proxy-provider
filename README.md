@@ -1,87 +1,107 @@
-auth-service-provider
-=====================
+# composer-conversation-proxy-provider
+Permets aux differentes applications d'avoir un proxy vers conversation-api
 
-[![Build Status](http://drone.etna-alternance.net/api/badge/github.com/etna-alternance/composer-auth-service-provider/status.svg?branch=v3)](http://drone.etna-alternance.net/github.com/etna-alternance/composer-auth-service-provider)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/etna-alternance/composer-auth-service-provider/badges/quality-score.png?b=v3)](https://scrutinizer-ci.com/g/etna-alternance/composer-auth-service-provider/?branch=v3)
-[![Coverage Status](https://coveralls.io/repos/github/etna-alternance/composer-auth-service-provider/badge.svg?branch=v3)](https://coveralls.io/github/etna-alternance/composer-auth-service-provider?branch=v3)
+[![GitHub version](https://badge.fury.io/gh/etna-alternance%2Fcomposer-conversation-proxy-provider.svg)](https://badge.fury.io/gh/etna-alternance%2Fcomposer-conversation-proxy-provider)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/etna-alternance/composer-conversation-proxy-provider/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/etna-alternance/composer-conversation-proxy-provider/?branch=master)
+[![Dependency Status](https://www.versioneye.com/user/projects/56604422f376cc003c00030f/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56604422f376cc003c00030f)
 
 ## Installation
 
-### Composer :
+Modifier `composer.json` :
 
 ```
-composer require etna/auth-service-provider:^3.0
+{
+    // ...
+    "require": {
+        "etna/conversation-proxy-provider": "~1.0.x"
+    },
+    "repositories": [
+       {
+           "type": "composer",
+           "url": "http://blu-composer.herokuapp.com"
+       }
+   ]
+}
 ```
 
 ## Utilisation
 
-1. Ajouter dans le fichier `bundles.php`
+### Déclarer le composant
 
-    ```
-    return [
+Le composant `etna/config-provider` met à disposition une classe permettant de faire utiliser ce proxy a notre application.
+
+Lors de la configuration de l'application il faut donc utiliser la classe `ETNA\Silex\Provider\Config\ConversationProxy` :
+
+```
+use ETNA\Silex\Provider\Config as ETNAConf;
+
+class EtnaConfig implements ServiceProviderInterface
+{
+    public function register(Application $app)
+    {
         ...
-        ETNA\Auth\AuthBundle::class => ['all' => true],
-    ];
-    ```
 
-2. Configurer le bundle pour chacun des envs :
+        //L'utilisation du controlleur custom est expliquée plus bas
+        $my_controller = new ConversationController();
+        $app->register(new ETNAConf\ConversationProxy($my_controller));
 
-    Créer `config/packages/{env}/auth.{php,yml}` et y mettre :
+        ...
+    }
+}
+```
 
-    - En yml :
+### Le contenu de ce composant
 
-        ```
-        auth:
-            authenticator_url: "l'url de l'api auth"
-            api_path: "^/$"
-            cookie_expiration: "<expiration>"
-        ```
+##### Le controlleur custom
 
-    - En PHP :
+Ce provider met a disposition un `DumbMethodsProxy` qui fournit toutes les routes basiques de conversations :
+ - Likes
+ - Message
+ - Views
+ - Recherche
 
-        ```
-        <?php
+Il est possible de creer un controlleur qui hérite de ce `DumbMethodsProxy` pour rajouter des routes custom :
+```
+class ConversationController extends DumbMethodsProxy
+{
+    public function connect(Application $app)
+    {
+        //Si il y'a besoin des routes basiques
+        $controllers = parent::connect($app);
+        //Sinon
+        $controllers = $app["controllers_factory"];
 
-        use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+        $controllers->get("/contract/{contract_id}/conversation", [$this, 'getConversation']);
+        $controllers->post("/contract/{contract_id}/conversation", [$this, 'createConversation']);
+    }
 
-        return function (ContainerConfigurator $container) {
-                $container->extension("auth", array(
-                    "authenticator_url" => __DIR__ . "/../../../tmp/keys/",
-                    "cookie_expiration" => "+10minutes"
-                ));
-        };
-        ```
+    public function getConversation(Application $app, $contract_id)
+    {
+        $conversation = $app["conversations"]->findOneByQueryString("+contract_id:{$contract_id} +app-name:gsa");
 
-3. La fonction authBeforeFunction
+        return $app->json($conversation->toArray(), 200);
+    }
 
-    Il ne reste plus que deux étapes avant d'avoir des routes sécurisées :
+    public function createConversation(Application $app, $contract_id)
+    {
+        $conversation = new Conversation();
 
-     - Implémenter l'interface `EtnaCookieAuthenticatedController` dans le controlleur à sécuriser
-     - Créer une classe qui implémente la classe abstraite `ETNA\Auth\Services\AuthCheckingService` :
+        $conversation->setTitle("GSA - Contract {$contract_id}");
 
-        ```
-        <?php
+        $response = $app["conversations"]->save($conversation);
 
-        namespace TestApp\Services;
+        return $app->json($response, 201);
+    }
+}
+```
 
-        use Symfony\Component\HttpFoundation\Request;
-        use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-        use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+##### Les plus de ce proxy
 
-        use ETNA\Auth\Services\AuthCheckingService as BaseAuthCheckingService;
-
-        class AuthCheckingService extends BaseAuthCheckingService
-        {
-            public function authBeforeFunction(Request $req): void
-            {
-                //Ici je peux vérifier comme je veux mon user ($req->attributes->get("auth.user"))
-                //Et throw des exceptions
-            }
-            // On peut aussi ne pas implémenter cette fonction pour garder celle de base
-        }
-        ```
-
-## Documentation
-
-Il existe une documentation basée qui est générable en utilisant `composer phing -- doc`
-Cela va générer une documentation dans le dossier `doc`, il suffit d'ouvrir le fichier `index.html` qui s'y trouve
+Ce provider met a disposition :
+- L'objet Conversation, qui est une "entité" qui se comporte comme une entité doctrine le ferait
+ - On peut la remplir avec un array grace a `$conversation->fromArray($array)`
+ - On peut la serializer en array grace a `$conversation->toArray()`
+- L'objet ConversationManager ($app["conversations"]) qui lui se comporte comme l'entity manager de doctrine, sauf qu'il permet aussi de recuperer des conversations. Il met a disposition les methodes :
+ - `findByQueryString` qui prends en parametre une query string ElasticSearch (+contract_id:42 +app-name:gsa) et qui retourne un tableau de Conversations
+ - `findOneByQueryString` qui prends aussi en parametre une query string mais retourne l'objet le plus pertinent
+ - `save` qui prend en paramètre une Conversation et effectue les requetes necessaires pour sauvegarder les changements
